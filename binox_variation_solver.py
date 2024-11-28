@@ -1,7 +1,9 @@
 
 class BinoxVariationSolver:
     def __init__(self, puzzle: dict) -> None:
-        self.puzzle = puzzle
+        self.board = puzzle['board']
+        self.col_cues = puzzle['col_cues']
+        self.row_cues = puzzle['row_cues']
         self.size = len(puzzle['board'][0])
         self.curr_circle = {
             "row": [0] * self.size,
@@ -11,11 +13,55 @@ class BinoxVariationSolver:
             "row": [0] * self.size,
             "col": [0] * self.size,
         }
+
+    # TODO: add action menu to choose: 1. make mark 2. return to last step 3. start over 4. show answer
+    def start_game(self) -> None:
+        while not self.check_solved():
+            self.print_board()
+            row = self.get_valid_input("row")
+            print("row ", row, "chosen")
+            col = self.get_valid_input("col")
+            print("col ", col, "chosen")
+            break
+
+    def get_valid_input(self, prompt: str) -> int:
+        """
+        Prompt for input and validate it's an integer between 1 and 6.
+        
+        Returns:
+        int: A validated integer between 1 and 6
+        """
+        while True:
+            # Get input and remove leading/trailing whitespace
+            user_input = input(f"Please choose {prompt}: ").strip()
+            try:
+                # Convert input to integer
+                number = int(user_input)
+                # Check if number is between 1 and 6 (inclusive)
+                if 1 <= number <= self.size:
+                    return number
+                else:
+                    raise ValueError
+            except ValueError:
+                print("Error: Invalid input.")
+    def check_solved(self) -> bool:
+        for i in range(self.size):
+            if self.curr_circle['row'][i] != self.row_cues[i]:
+                return False
+            if self.curr_circle['col'][i] != self.col_cues[i]:
+                return False
+            if self.curr_cross['row'][i] != self.size - self.row_cues[i]:
+                return False
+            if self.curr_cross['col'][i] != self.size - self.col_cues[i]:
+                return False
+        return True
+    def update_cell(self) -> None:
+        return
     def print_board(self) -> None:
         # Separate the cues and board
-        board = self.puzzle['board']
-        col_cues = self.puzzle['col_cues']
-        row_cues = self.puzzle['row_cues']
+        board = self.board
+        col_cues = self.col_cues
+        row_cues = self.row_cues
         for row in range(len(board)):
             for col in range(len(board[row])):
                 if board[row][col] == 1:
@@ -43,10 +89,11 @@ class BinoxVariationSolver:
             print(horizontal_separator)  # Separator after each row
             # print(f"{'':>{len(horizontal_separator)-4}} {}")  # Row cue aligned
         print(f" {col_cue_str}")  # Top row for column cues
-
+        print("=" * (cell_width + 1) * (self.size + 3))
 
 
 if __name__ == "__main__":
     from easy import puzzle_1
     solver = BinoxVariationSolver(puzzle_1)
-    solver.print_board()
+    # solver.print_board()
+    solver.start_game()
