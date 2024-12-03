@@ -46,6 +46,7 @@ class BinoxVariationGame:
 
     def return_to_last_step(self) -> None:
         print("Return to last step...")
+        self.solver.last_step()
 
     def new_game(self) -> None:
         print("Starting a new game...")

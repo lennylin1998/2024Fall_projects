@@ -39,10 +39,19 @@ class BinoxVariationSolver:
             print("This cell is given and can not be changed!")
             return
         print("updated cell!!")
-        val = 1 if mark == 'O' else -1
+        val = 1 if mark == 'O' else -1 if mark == 'X' else 0
+        self.moves.append(tuple([row, col, self.board[row][col]]))
         self.board[row][col] = val
-        self.moves.append(tuple([row, col, mark]))
         print(self.moves)
+
+    def last_step(self) -> None:
+        if len(self.moves) == 0:
+            return
+        last_row, last_col, last_mark = self.moves[-1]
+        self.board[last_row][last_col] = last_mark
+        self.moves.pop()
+        self.print_board()
+
     def print_board(self) -> None:
         # Separate the cues and board
         board = self.board
