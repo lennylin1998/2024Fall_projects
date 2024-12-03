@@ -1,3 +1,4 @@
+from easy import puzzle_1
 
 class BinoxVariationSolver:
     def __init__(self, puzzle: dict) -> None:
@@ -13,37 +14,8 @@ class BinoxVariationSolver:
             "row": [0] * self.size,
             "col": [0] * self.size,
         }
+        self.print_board()
 
-    # TODO: add action menu to choose: 1. make mark 2. return to last step 3. start over 4. show answer
-    def start_game(self) -> None:
-        while not self.check_solved():
-            self.print_board()
-            row = self.get_valid_input("row")
-            print("row ", row, "chosen")
-            col = self.get_valid_input("col")
-            print("col ", col, "chosen")
-            break
-
-    def get_valid_input(self, prompt: str) -> int:
-        """
-        Prompt for input and validate it's an integer between 1 and 6.
-        
-        Returns:
-        int: A validated integer between 1 and 6
-        """
-        while True:
-            # Get input and remove leading/trailing whitespace
-            user_input = input(f"Please choose {prompt}: ").strip()
-            try:
-                # Convert input to integer
-                number = int(user_input)
-                # Check if number is between 1 and 6 (inclusive)
-                if 1 <= number <= self.size:
-                    return number
-                else:
-                    raise ValueError
-            except ValueError:
-                print("Error: Invalid input.")
     def check_solved(self) -> bool:
         for i in range(self.size):
             if self.curr_circle['row'][i] != self.row_cues[i]:
@@ -56,6 +28,7 @@ class BinoxVariationSolver:
                 return False
         return True
     def update_cell(self) -> None:
+        print("updated cell!!")
         return
     def print_board(self) -> None:
         # Separate the cues and board
@@ -73,13 +46,14 @@ class BinoxVariationSolver:
 
         # Calculate spacing for alignment
         cell_width = 3
-        col_cue_str = "O/X " + " ".join(f"{x}/{self.size - x}" for x in col_cues)
+        col_cue_str = "    " + " ".join(f"{x}/{self.size - x}" for x in col_cues) + "  O/X"
         horizontal_separator = "    +" + "+".join(["-" * cell_width] * (self.size)) + "+"
 
+        print("=" * (cell_width + 1) * (self.size + 3))
         print("circle:", self.curr_circle)
         print("cross:", self.curr_cross)
         # Print the board with column and row cues
-        print("     " + " ".join([ f"{i:^{cell_width}}" for i in range(1, self.size + 1)]) + "  O/X")
+        print("     " + " ".join([ f"{i:^{cell_width}}" for i in range(1, self.size + 1)]))
         print(horizontal_separator)  # Separator after cues
         for i, row in enumerate(board):
             formatted_row = f"  {i + 1} |" + "|".join(
@@ -93,7 +67,5 @@ class BinoxVariationSolver:
 
 
 if __name__ == "__main__":
-    from easy import puzzle_1
     solver = BinoxVariationSolver(puzzle_1)
     # solver.print_board()
-    solver.start_game()
