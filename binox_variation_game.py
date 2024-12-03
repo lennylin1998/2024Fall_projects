@@ -28,11 +28,13 @@ class BinoxVariationGame:
             print("Please start a new game first!")
             return
         print("Filling a cell...")
-        row = self.get_valid_input("row ")
+        row = self.get_valid_input_coordinates("row ")
         print("  row ", row, " chosen")
-        col = self.get_valid_input("col ")
+        col = self.get_valid_input_coordinates("col ")
         print("  col ", col, " chosen")
-        self.solver.update_cell()
+        mark = self.get_valid_input_mark()
+        self.solver.update_cell(row - 1, col - 1, mark)
+
         self.solver.print_board()
         if self.solver.check_solved():
             print("Congradulations! Puzzle solved!")
@@ -61,7 +63,7 @@ class BinoxVariationGame:
         else:
             print(f"Invalid option '{option}'. Please select from A, S, D, F, G.")
 
-    def get_valid_input(self, prompt: str) -> int:
+    def get_valid_input_coordinates(self, prompt: str) -> int:
         while True:
             # Get input and remove leading/trailing whitespace
             user_input = input(f"Please choose {prompt}: ").strip()
@@ -74,6 +76,19 @@ class BinoxVariationGame:
                 raise ValueError
             except ValueError:
                 print(f"Invalid input! Should be number betwee 1 and {self.solver.size}")
+
+    def get_valid_input_mark(self) -> int:
+        while True:
+            # Get input and remove leading/trailing whitespace
+            user_input = input(f"Please choose 'O' or 'X': ").strip().upper()
+            try:
+                # Convert input to integer
+                # Check if number is between 1 and 6 (inclusive)
+                if user_input == 'O' or user_input == 'X':
+                    return user_input
+                raise ValueError
+            except ValueError:
+                print(f"Invalid input! Should be either 'O' or 'X'!")
 
 if __name__ == "__main__":
     game = BinoxVariationGame()

@@ -1,4 +1,5 @@
 from easy import puzzle_1
+from colorama import Fore, Style
 
 class BinoxVariationSolver:
     def __init__(self, puzzle: dict) -> None:
@@ -14,6 +15,12 @@ class BinoxVariationSolver:
             "row": [0] * self.size,
             "col": [0] * self.size,
         }
+        self.preset_cells = set()
+        for i in range(len(self.board)):
+            for j in range(len(self.board[0])):
+                if self.board[i][j] != 0:
+                    self.preset_cells.add((i, j))
+        self.moves = []
         self.print_board()
 
     def check_solved(self) -> bool:
@@ -27,9 +34,15 @@ class BinoxVariationSolver:
             if self.curr_cross['col'][i] != self.size - self.col_cues[i]:
                 return False
         return True
-    def update_cell(self) -> None:
+    def update_cell(self, row: int, col: int, mark: str) -> None:
+        if (row, col) in self.preset_cells:
+            print("This cell is given and can not be changed!")
+            return
         print("updated cell!!")
-        return
+        val = 1 if mark == 'O' else -1
+        self.board[row][col] = val
+        self.moves.append(tuple([row, col, mark]))
+        print(self.moves)
     def print_board(self) -> None:
         # Separate the cues and board
         board = self.board
@@ -56,10 +69,14 @@ class BinoxVariationSolver:
         print("     " + " ".join([ f"{i:^{cell_width}}" for i in range(1, self.size + 1)]))
         print(horizontal_separator)  # Separator after cues
         for i, row in enumerate(board):
-            formatted_row = f"  {i + 1} |" + "|".join(
-                f"{'O' if x == 1 else 'X' if x == -1 else '.':^{cell_width}}" for x in row
-            ) + "|" + f" {row_cues[i]}/{self.size - row_cues[i]}"
-            print(formatted_row)
+            print(f"  {i + 1} |", end="")
+            for j in range(len(row)):
+                if (i, j) in self.preset_cells:
+                    print(f"{Fore.BLUE}{'O' if board[i][j] == 1 else 'X' if board[i][j] == -1 else '.':^{cell_width}}{Style.RESET_ALL}", end = '|')
+                else:
+                    print(f"{'O' if board[i][j] == 1 else 'X' if board[i][j] == -1 else '.':^{cell_width}}", end = '|')
+
+            print(f" {row_cues[i]}/{self.size - row_cues[i]}")
             print(horizontal_separator)  # Separator after each row
             # print(f"{'':>{len(horizontal_separator)-4}} {}")  # Row cue aligned
         print(f" {col_cue_str}")  # Top row for column cues
