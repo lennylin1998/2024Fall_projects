@@ -1,6 +1,7 @@
 from easy import puzzle_1
 from colorama import Fore, Style
 
+
 class BinoxVariationSolver:
     def __init__(self, puzzle: dict) -> None:
         self.board = puzzle['board']
