@@ -5,9 +5,9 @@ from colorama import Fore, Style
 class BinoxVariationSolver:
     def __init__(self, generator) -> None:
         self.board = generator.final_puzzle
-        self.col_hints = [i for i in generator.hints_used["col"]]
-        self.row_hints = [i for i in generator.hints_used["row"]]
         self.size = generator.size
+        self.col_hints = [generator.row_hints[i]["O"] if i in generator.hints_used["col"] else 0 for i in range(self.size)]
+        self.row_hints = [generator.row_hints[i]["O"] if i in generator.hints_used["row"] else 0 for i in range(self.size)]
         self.curr_circle = {
             "row": [0] * self.size,
             "col": [0] * self.size,
@@ -29,13 +29,13 @@ class BinoxVariationSolver:
 
     def check_solved(self) -> bool:
         for i in range(self.size):
-            if self.curr_circle['row'][i] != self.row_hints[i]:
+            if self.row_hints[i] > 0 and self.curr_circle['row'][i] != self.row_hints[i]:
                 return False
-            if self.curr_circle['col'][i] != self.col_hints[i]:
+            if self.col_hints[i] > 0 and self.curr_circle['col'][i] != self.col_hints[i]:
                 return False
-            if self.curr_cross['row'][i] != self.size - self.row_hints[i]:
+            if self.row_hints[i] > 0 and self.curr_cross['row'][i] != self.size - self.row_hints[i]:
                 return False
-            if self.curr_cross['col'][i] != self.size - self.col_hints[i]:
+            if self.col_hints[i] > 0 and self.curr_cross['col'][i] != self.size - self.col_hints[i]:
                 return False
         return True
     def update_cell(self, row: int, col: int, mark: str) -> None:
@@ -71,7 +71,7 @@ class BinoxVariationSolver:
 
         # Calculate spacing for alignment
         cell_width = 3
-        col_cue_str = "    " + " ".join(f"{x}/{self.size - x}" for x in col_hints) + "  O/X"
+        col_cue_str = "    " + " ".join(f"{x}/{self.size - x}" if x > 0 else "   " for x in col_hints) + "  O/X"
         horizontal_separator = "    +" + "+".join(["-" * cell_width] * (self.size)) + "+"
 
         print("=" * (cell_width + 1) * (self.size + 3))
@@ -87,8 +87,10 @@ class BinoxVariationSolver:
                     print(f"{Fore.BLUE}{'.' if board[i][j] == "_" else board[i][j]:^{cell_width}}{Style.RESET_ALL}", end = '|')
                 else:
                     print(f"{'.' if board[i][j] == "_" else board[i][j]:^{cell_width}}", end = '|')
-
-            print(f" {row_hints[i]}/{self.size - row_hints[i]}")
+            if row_hints[i] > 0:
+                print(f" {row_hints[i]}/{self.size - row_hints[i]}")
+            else:
+                print("   ")
             print(horizontal_separator)  # Separator after each row
             # print(f"{'':>{len(horizontal_separator)-4}} {}")  # Row cue aligned
         print(f" {col_cue_str}")  # Top row for column cues
