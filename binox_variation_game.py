@@ -1,5 +1,5 @@
 import sys
-from easy import puzzle_1
+from easy import puzzle_1, puzzle_2
 from binox_variation_solver import BinoxVariationSolver
 
 class BinoxVariationGame:
@@ -50,7 +50,7 @@ class BinoxVariationGame:
 
     def new_game(self) -> None:
         print("Starting a new game...")
-        self.solver = BinoxVariationSolver(puzzle_1)
+        self.solver = BinoxVariationSolver(puzzle_2)
 
     def quit_game(self) -> None:
         print("Quitting the game...")

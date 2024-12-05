@@ -1,4 +1,4 @@
-from easy import puzzle_1
+from easy import puzzle_1, puzzle_2
 from colorama import Fore, Style
 
 
@@ -19,10 +19,13 @@ class BinoxVariationSolver:
         self.preset_cells = set()
         for i in range(len(self.board)):
             for j in range(len(self.board[0])):
-                if self.board[i][j] != 0:
+                if self.board[i][j] != " ":
                     self.preset_cells.add((i, j))
         self.moves = []
         self.print_board()
+
+    def get_clues(self) -> None:
+        return
 
     def check_solved(self) -> bool:
         for i in range(self.size):
@@ -40,9 +43,8 @@ class BinoxVariationSolver:
             print("This cell is given and can not be changed!")
             return
         print("updated cell!!")
-        val = 1 if mark == 'O' else -1 if mark == 'X' else 0
         self.moves.append(tuple([row, col, self.board[row][col]]))
-        self.board[row][col] = val
+        self.board[row][col] = mark
         print(self.moves)
 
     def last_step(self) -> None:
@@ -60,10 +62,10 @@ class BinoxVariationSolver:
         row_cues = self.row_cues
         for row in range(len(board)):
             for col in range(len(board[row])):
-                if board[row][col] == 1:
+                if board[row][col] == "O":
                     self.curr_circle["row"][row] += 1
                     self.curr_circle["col"][col] += 1
-                elif board[row][col] == -1:
+                elif board[row][col] == "X":
                     self.curr_cross["row"][row] += 1
                     self.curr_cross["col"][col] += 1
 
@@ -82,9 +84,9 @@ class BinoxVariationSolver:
             print(f"  {i + 1} |", end="")
             for j in range(len(row)):
                 if (i, j) in self.preset_cells:
-                    print(f"{Fore.BLUE}{'O' if board[i][j] == 1 else 'X' if board[i][j] == -1 else '.':^{cell_width}}{Style.RESET_ALL}", end = '|')
+                    print(f"{Fore.BLUE}{'.' if board[i][j] == " " else board[i][j]:^{cell_width}}{Style.RESET_ALL}", end = '|')
                 else:
-                    print(f"{'O' if board[i][j] == 1 else 'X' if board[i][j] == -1 else '.':^{cell_width}}", end = '|')
+                    print(f"{'.' if board[i][j] == " " else board[i][j]:^{cell_width}}", end = '|')
 
             print(f" {row_cues[i]}/{self.size - row_cues[i]}")
             print(horizontal_separator)  # Separator after each row
