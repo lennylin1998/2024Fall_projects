@@ -44,6 +44,10 @@ class BinoxVariationGame:
 
     def check_answer(self) -> None:
         print("Checking the answer...")
+        print()
+        for row in self.solver.answer:
+            print(" ".join(row))
+        print()
 
     def return_to_last_step(self) -> None:
         print("Return to last step...")

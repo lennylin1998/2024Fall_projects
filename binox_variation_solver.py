@@ -7,7 +7,7 @@ class BinoxVariationSolver:
         self.board = generator.final_puzzle
         self.answer = generator.puzzle
         self.size = generator.size
-        self.col_hints = [generator.row_hints[i]["O"] if i in generator.hints_used["col"] else 0 for i in range(self.size)]
+        self.col_hints = [generator.col_hints[i]["O"] if i in generator.hints_used["col"] else 0 for i in range(self.size)]
         self.row_hints = [generator.row_hints[i]["O"] if i in generator.hints_used["row"] else 0 for i in range(self.size)]
         self.curr_circle = {
             "row": [0] * self.size,
