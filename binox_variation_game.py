@@ -65,7 +65,10 @@ class BinoxVariationGame:
             except ValueError:
                 print(f"Invalid input! Should be number betwee 6 and 12")
         self.solver = BinoxVariationSolver(BinoxVariationGenerator(size))
-
+        print()
+        for row in self.solver.answer:
+            print(" ".join(row))
+        print()
     def quit_game(self) -> None:
         print("Quitting the game...")
         sys.exit()
