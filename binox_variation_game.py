@@ -105,9 +105,6 @@ class BinoxVariationGame:
             except ValueError:
                 print(f"Invalid input! Should be either 'O' or 'X'!")
 
-
-
-
 if __name__ == "__main__":
     game = BinoxVariationGame()
     game.run_game()

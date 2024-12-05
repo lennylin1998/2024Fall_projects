@@ -5,6 +5,7 @@ from colorama import Fore, Style
 class BinoxVariationSolver:
     def __init__(self, generator) -> None:
         self.board = generator.final_puzzle
+        self.answer = generator.puzzle
         self.size = generator.size
         self.col_hints = [generator.row_hints[i]["O"] if i in generator.hints_used["col"] else 0 for i in range(self.size)]
         self.row_hints = [generator.row_hints[i]["O"] if i in generator.hints_used["row"] else 0 for i in range(self.size)]
@@ -28,16 +29,7 @@ class BinoxVariationSolver:
         return
 
     def check_solved(self) -> bool:
-        for i in range(self.size):
-            if self.row_hints[i] > 0 and self.curr_circle['row'][i] != self.row_hints[i]:
-                return False
-            if self.col_hints[i] > 0 and self.curr_circle['col'][i] != self.col_hints[i]:
-                return False
-            if self.row_hints[i] > 0 and self.curr_cross['row'][i] != self.size - self.row_hints[i]:
-                return False
-            if self.col_hints[i] > 0 and self.curr_cross['col'][i] != self.size - self.col_hints[i]:
-                return False
-        return True
+        return self.answer == self.board
     def update_cell(self, row: int, col: int, mark: str) -> None:
         if (row, col) in self.preset_cells:
             print("This cell is given and can not be changed!")
@@ -95,7 +87,6 @@ class BinoxVariationSolver:
             # print(f"{'':>{len(horizontal_separator)-4}} {}")  # Row cue aligned
         print(f" {col_cue_str}")  # Top row for column cues
         print("=" * (cell_width + 1) * (self.size + 3))
-
 
 if __name__ == "__main__":
     solver = BinoxVariationSolver(puzzle_1)
