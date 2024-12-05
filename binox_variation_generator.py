@@ -39,11 +39,15 @@ class BinoxVariationGenerator:
         for row in self.final_puzzle:
             print(" ".join(row))
 
-        self.row_counters = [Counter() for _ in range(self.size)]
-        self.col_counters = [Counter() for _ in range(self.size)]
-        self.game_solver()
-        for row in self.final_puzzle:
-            print(" ".join(row))
+        # self.row_counters = [Counter() for _ in range(self.size)]
+        # self.col_counters = [Counter() for _ in range(self.size)]
+        # for i, row in enumerate(self.final_puzzle):
+        #     for j, cell in enumerate(row):
+        #         self.row_counters[i][cell] += 1
+        #         self.col_counters[j][cell] += 1
+        # self.game_solver()
+        # for row in self.final_puzzle:
+        #     print(" ".join(row))
     # Binox Generator Function
     def binox_generator(self, size=6):
         """

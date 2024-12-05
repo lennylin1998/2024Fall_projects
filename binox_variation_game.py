@@ -1,6 +1,7 @@
 import sys
 from easy import puzzle_1, puzzle_2
 from binox_variation_solver import BinoxVariationSolver
+from binox_variation_generator import BinoxVariationGenerator
 
 class BinoxVariationGame:
     def __init__(self):
@@ -50,7 +51,20 @@ class BinoxVariationGame:
 
     def new_game(self) -> None:
         print("Starting a new game...")
-        self.solver = BinoxVariationSolver(puzzle_2)
+        size = 6
+        while True:
+            # Get input and remove leading/trailing whitespace
+            user_input = input("Select a size from 6 to 12: ").strip()
+            try:
+                # Convert input to integer
+                size = int(user_input)
+                # Check if number is between 1 and 6 (inclusive)
+                if 6 <= size <= 12:
+                    break
+                raise ValueError
+            except ValueError:
+                print(f"Invalid input! Should be number betwee 6 and 12")
+        self.solver = BinoxVariationSolver(BinoxVariationGenerator(size))
 
     def quit_game(self) -> None:
         print("Quitting the game...")
