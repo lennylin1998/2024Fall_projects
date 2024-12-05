@@ -10,6 +10,7 @@ class BinoxVariationGenerator:
         # Initialize dictionaries to store counters for rows and columns
         self.row_hints = [Counter() for _ in range(self.size)]
         self.col_hints = [Counter() for _ in range(self.size)]
+        self.hints_used = {"row": set(), "col": set()}
 
         # Iterate through the board and update counters
         for i, row in enumerate(self.board):
@@ -32,7 +33,15 @@ class BinoxVariationGenerator:
             print()
             print("After trying solving modified version:")
             self.print_puzzle()
+
         print("FINAL:")
+        print(self.hints_used)
+        for row in self.final_puzzle:
+            print(" ".join(row))
+
+        self.row_counters = [Counter() for _ in range(self.size)]
+        self.col_counters = [Counter() for _ in range(self.size)]
+        self.game_solver()
         for row in self.final_puzzle:
             print(" ".join(row))
     # Binox Generator Function
@@ -131,14 +140,25 @@ class BinoxVariationGenerator:
             self.partial_solver()
             # print()
             # self.print_puzzle()
-            if 25 < sum([counter["_"] for counter in self.row_counters]) < 30:
+            if self.size * 2 < sum([counter["_"] for counter in self.row_counters]) < self.size * 2.5:
                 return
+
+    def game_solver(self):
+        can_solve = True
+        run_time = 1
+        while can_solve:
+            can_solve = self.two_adjacent_fill(self.final_puzzle) or self.in_between_fill(self.final_puzzle) or self.hint_fill_with_partial_hints()
+            print()
+            print("run times: ", run_time)
+            print()  
+            run_time += 1
+
 
     def partial_solver(self):
         run_time = 1
         can_solve = True
         while can_solve:
-            can_solve = self.two_adjacent_fill() or self.in_between_fill() or self.hint_fill()
+            can_solve = self.two_adjacent_fill(self.puzzle) or self.in_between_fill(self.puzzle) or self.hint_fill()
             print()
             print("run times: ", run_time)
             print()
@@ -147,52 +167,52 @@ class BinoxVariationGenerator:
             #     print(" ".join(row))
             run_time += 1
 
-    def two_adjacent_fill(self) -> bool:
+    def two_adjacent_fill(self, puzzle) -> bool:
         changes_made = 0
         for i in range(self.size - 2):
             for j in range(self.size):
                 k = self.size - 1 - i
                 # col
-                if (self.puzzle[i][j] == '_') and (self.puzzle[i + 1][j] != '_') and (self.puzzle[i + 1][j] == self.puzzle[i + 2][j]):
-                    self.puzzle[i][j] = 'X' if self.puzzle[i + 1][j] == 'O' else 'O'
-                    self.update_counter(i, j, self.puzzle[i][j])
+                if (puzzle[i][j] == '_') and (puzzle[i + 1][j] != '_') and (puzzle[i + 1][j] == puzzle[i + 2][j]):
+                    puzzle[i][j] = 'X' if puzzle[i + 1][j] == 'O' else 'O'
+                    self.update_counter(i, j, puzzle[i][j])
                     changes_made += 1
                     # print(1, (i, j))
-                if (self.puzzle[k][j] == '_') and (self.puzzle[k - 1][j] != '_') and (self.puzzle[k - 1][j] == self.puzzle[k - 2][j]):
-                    self.puzzle[k][j] = 'X' if self.puzzle[k - 1][j] == 'O' else 'O'
-                    self.update_counter(k, j, self.puzzle[k][j])
+                if (puzzle[k][j] == '_') and (puzzle[k - 1][j] != '_') and (puzzle[k - 1][j] == puzzle[k - 2][j]):
+                    puzzle[k][j] = 'X' if puzzle[k - 1][j] == 'O' else 'O'
+                    self.update_counter(k, j, puzzle[k][j])
                     changes_made += 1
                     # print(2, (k, j))
                 # row
                 # print(f"j: {j}, i:{i}")
-                if (self.puzzle[j][i] == '_') and (self.puzzle[j][i + 1] != '_') and (self.puzzle[j][i + 1] == self.puzzle[j][i + 2]):
-                    self.puzzle[j][i] = 'X' if self.puzzle[j][i + 1] == 'O' else 'O'
-                    self.update_counter(j, i, self.puzzle[j][i])
+                if (puzzle[j][i] == '_') and (puzzle[j][i + 1] != '_') and (puzzle[j][i + 1] == puzzle[j][i + 2]):
+                    puzzle[j][i] = 'X' if puzzle[j][i + 1] == 'O' else 'O'
+                    self.update_counter(j, i, puzzle[j][i])
                     changes_made += 1
                     # print(3, (j, i))
-                if (self.puzzle[j][k] == '_') and (self.puzzle[j][k - 1] != '_') and (self.puzzle[j][k - 1] == self.puzzle[j][k - 2]):
-                    self.puzzle[j][k] = 'X' if self.puzzle[j][k - 1] == 'O' else 'O'
-                    self.update_counter(j, k, self.puzzle[j][k])
+                if (puzzle[j][k] == '_') and (puzzle[j][k - 1] != '_') and (puzzle[j][k - 1] == puzzle[j][k - 2]):
+                    puzzle[j][k] = 'X' if puzzle[j][k - 1] == 'O' else 'O'
+                    self.update_counter(j, k, puzzle[j][k])
                     changes_made += 1
                     # print(4, (j, k))
         # print(self.row_counters)
         # print(self.col_counters)
         return changes_made > 0
 
-    def in_between_fill(self) -> bool:
+    def in_between_fill(self, puzzle) -> bool:
         changes_made = 0
         for i in range(self.size):
             for j in range(1, self.size - 1):
                 # col
-                if (self.puzzle[i][j] == '_') and (self.puzzle[i][j - 1] != '_') and (self.puzzle[i][j - 1] == self.puzzle[i][j + 1]):
-                    self.puzzle[i][j] = 'X' if self.puzzle[i][j - 1] == 'O' else 'O'
-                    self.update_counter(i, j, self.puzzle[i][j])
+                if (puzzle[i][j] == '_') and (puzzle[i][j - 1] != '_') and (puzzle[i][j - 1] == puzzle[i][j + 1]):
+                    puzzle[i][j] = 'X' if puzzle[i][j - 1] == 'O' else 'O'
+                    self.update_counter(i, j, puzzle[i][j])
                     changes_made += 1
                     # print((i, j))
                 # row
-                if (self.puzzle[j][i] == '_') and (self.puzzle[j - 1][i] != '_') and (self.puzzle[j - 1][i] == self.puzzle[j + 1][i]):
-                    self.puzzle[j][i] = 'X' if self.puzzle[j - 1][i] == 'O' else 'O'
-                    self.update_counter(j, i, self.puzzle[j][i])
+                if (puzzle[j][i] == '_') and (puzzle[j - 1][i] != '_') and (puzzle[j - 1][i] == puzzle[j + 1][i]):
+                    puzzle[j][i] = 'X' if puzzle[j - 1][i] == 'O' else 'O'
+                    self.update_counter(j, i, puzzle[j][i])
                     changes_made += 1
                     # print((j, i))
         return changes_made > 0
@@ -207,6 +227,7 @@ class BinoxVariationGenerator:
                             self.puzzle[i][j] = 'X'
                             self.update_counter(i, j, 'X')
                     changes_made += 1
+                    self.hints_used["row"].add(i)
                     print(f"last blank on row {i}!")
                 elif self.row_counters[i]['X'] == self.row_hints[i]['X']:
                     for j in range(self.size):
@@ -214,6 +235,7 @@ class BinoxVariationGenerator:
                             self.puzzle[i][j] = 'O'
                             self.update_counter(i, j, 'O')
                     changes_made += 1
+                    self.hints_used["row"].add(i)
                     print(f"last blank on row {i}!")
             if self.col_counters[i]['_'] > 0:
                 if self.col_counters[i]['O'] == self.col_hints[i]['O']:
@@ -222,11 +244,48 @@ class BinoxVariationGenerator:
                             self.puzzle[j][i] = 'X'
                             self.update_counter(j, i, 'X')
                     changes_made += 1
+                    self.hints_used["col"].add(i)
                     print(f"last blank on col {i}!")
                 elif self.col_counters[i]['X'] == self.col_hints[i]['X']:
                     for j in range(self.size):
                         if self.puzzle[j][i] == '_':
                             self.puzzle[j][i] = 'O'
+                            self.update_counter(j, i, 'O')
+                    changes_made += 1
+                    self.hints_used["col"].add(i)
+                    print(f"last blank on col {i}!")
+        return changes_made > 0
+
+    def hint_fill_with_partial_hints(self):
+        changes_made = 0
+        for i in range(self.size):
+            if self.row_counters[i]['_'] > 0 and (i in self.hints_used["row"]):
+                if self.row_counters[i]['O'] == self.row_hints[i]['O']:
+                    for j in range(self.size):
+                        if self.final_puzzle[i][j] == '_':
+                            self.final_puzzle[i][j] = 'X'
+                            self.update_counter(i, j, 'X')
+                    changes_made += 1
+                    print(f"last blank on row {i}!")
+                elif self.row_counters[i]['X'] == self.row_hints[i]['X'] and (i in self.hints_used["row"]):
+                    for j in range(self.size):
+                        if self.final_puzzle[i][j] == '_':
+                            self.final_puzzle[i][j] = 'O'
+                            self.update_counter(i, j, 'O')
+                    changes_made += 1
+                    print(f"last blank on row {i}!")
+            if self.col_counters[i]['_'] > 0:
+                if self.col_counters[i]['O'] == self.col_hints[i]['O'] and (i in self.hints_used["col"]):
+                    for j in range(self.size):
+                        if self.final_puzzle[j][i] == '_':
+                            self.final_puzzle[j][i] = 'X'
+                            self.update_counter(j, i, 'X')
+                    changes_made += 1
+                    print(f"last blank on col {i}!")
+                elif self.col_counters[i]['X'] == self.col_hints[i]['X'] and (i in self.hints_used["col"]):
+                    for j in range(self.size):
+                        if self.final_puzzle[j][i] == '_':
+                            self.final_puzzle[j][i] = 'O'
                             self.update_counter(j, i, 'O')
                     changes_made += 1
                     print(f"last blank on col {i}!")
@@ -292,6 +351,7 @@ class BinoxVariationGenerator:
             for j, cell in enumerate(row):
                 self.row_counters[i][cell] += 1
                 self.col_counters[j][cell] += 1
+        self.hints_used = {"row": set(), "col": set()}
     # # Function to generate row hints from the original board
     # def row_hints(self, num_hints=3):
     #     """
@@ -400,7 +460,7 @@ class BinoxVariationGenerator:
 
 
 if __name__ == "__main__":
-    ins = BinoxVariationGenerator(11)
+    ins = BinoxVariationGenerator(6)
     # for i in range(1000):
     #     instance = BinoxVariationGenerator(12)
     #     for i in range(instance.size):
