@@ -1,8 +1,7 @@
-from easy import puzzle_1
 from colorama import Fore, Style
 
 
-class BinoxVariationSolver:
+class BinoxVariationBoard:
     def __init__(self, generator) -> None:
         self.board = generator.final_puzzle
         self.answer = generator.puzzle
@@ -64,16 +63,16 @@ class BinoxVariationSolver:
         # Calculate spacing for alignment
         cell_width = 3
         col_cue_str = "    " + " ".join(f"{x}/{self.size - x}" if x > 0 else "   " for x in col_hints) + "  O/X"
-        horizontal_separator = "    +" + "+".join(["-" * cell_width] * (self.size)) + "+"
+        horizontal_separator = "     +" + "+".join(["-" * cell_width] * (self.size)) + "+"
 
         print("=" * (cell_width + 1) * (self.size + 3))
         print("circle:", self.curr_circle)
         print("cross:", self.curr_cross)
         # Print the board with column and row cues
-        print("     " + " ".join([ f"{i:^{cell_width}}" for i in range(1, self.size + 1)]))
+        print("      " + " ".join([ f"{i:^{cell_width}}" for i in range(1, self.size + 1)]))
         print(horizontal_separator)  # Separator after cues
         for i, row in enumerate(board):
-            print(f"  {i + 1} |", end="")
+            print(f"{i + 1:>4} |", end="")
             for j in range(len(row)):
                 if (i, j) in self.preset_cells:
                     print(f"{Fore.BLUE}{'.' if board[i][j] == "_" else board[i][j]:^{cell_width}}{Style.RESET_ALL}", end = '|')
@@ -85,9 +84,10 @@ class BinoxVariationSolver:
                 print("   ")
             print(horizontal_separator)  # Separator after each row
             # print(f"{'':>{len(horizontal_separator)-4}} {}")  # Row cue aligned
-        print(f" {col_cue_str}")  # Top row for column cues
+        print(f"  {col_cue_str}")  # Top row for column cues
         print("=" * (cell_width + 1) * (self.size + 3))
 
 if __name__ == "__main__":
-    solver = BinoxVariationSolver(puzzle_1)
+    exit
+    # solver = BinoxVariationBoard(puzzle_1)
     # solver.print_board()

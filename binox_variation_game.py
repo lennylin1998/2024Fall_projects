@@ -1,6 +1,5 @@
 import sys
-from easy import puzzle_1, puzzle_2
-from binox_variation_solver import BinoxVariationSolver
+from binox_variation_board import BinoxVariationBoard
 from binox_variation_generator import BinoxVariationGenerator
 
 class BinoxVariationGame:
@@ -15,7 +14,7 @@ class BinoxVariationGame:
             'Q': self.quit_game
         }
         self.solver = None
-    # TODO: add action menu to choose: 1. make mark 2. return to last step 3. start over 4. show answer
+
     def run_game(self) -> None:
         while not self.quit:
             print("* Action Menu")
@@ -26,7 +25,9 @@ class BinoxVariationGame:
             print("-------------------------------")
     def fill_cell(self) -> None:
         if not self.solver:
+            print("#################################")
             print("Please start a new game first!")
+            print("#################################")
             return
         print("Filling a cell...")
         row = self.get_valid_input_coordinates("row ")
@@ -44,6 +45,11 @@ class BinoxVariationGame:
 
     def check_answer(self) -> None:
         print("Checking the answer...")
+        if not self.solver:
+            print("#################################")
+            print("Please start a new game first!")
+            print("#################################")
+            return
         print()
         for row in self.solver.answer:
             print(" ".join(row))
@@ -51,6 +57,11 @@ class BinoxVariationGame:
 
     def return_to_last_step(self) -> None:
         print("Return to last step...")
+        if not self.solver:
+            print("#################################")
+            print("Please start a new game first!")
+            print("#################################")
+            return
         self.solver.last_step()
 
     def new_game(self) -> None:
@@ -68,13 +79,15 @@ class BinoxVariationGame:
                 raise ValueError
             except ValueError:
                 print(f"Invalid input! Should be number betwee 6 and 12")
-        self.solver = BinoxVariationSolver(BinoxVariationGenerator(size))
+        self.solver = BinoxVariationBoard(BinoxVariationGenerator(size))
         print()
         for row in self.solver.answer:
             print(" ".join(row))
         print()
     def quit_game(self) -> None:
+        print("#################################")
         print("Quitting the game...")
+        print("#################################")
         sys.exit()
 
     def action_handle(self, option: str) -> None:

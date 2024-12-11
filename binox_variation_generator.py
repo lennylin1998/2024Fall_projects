@@ -20,19 +20,7 @@ class BinoxVariationGenerator:
         # print(self.row_hints)
         # print(self.col_hints)
         self.create_partial_solved_puzzle()
-        while sum([counter["_"] for counter in self.row_counters]) > 0:
-            stat = self.gather_statistics()
-            print(stat)
-            # print("Before modify: ")
-            # for row in self.final_puzzle:
-            #     print(" ".join(row))
-            self.modify_puzzle(stat)
-            print("After modify: ")
-            self.print_puzzle()
-            self.partial_solver()
-            print()
-            print("After trying solving modified version:")
-            self.print_puzzle()
+        self.find_final_puzzle()
 
         print("FINAL:")
         print(self.hints_used)
@@ -146,6 +134,21 @@ class BinoxVariationGenerator:
             # self.print_puzzle()
             if self.size * 2 < sum([counter["_"] for counter in self.row_counters]) < self.size * 2.5:
                 return
+            
+    def find_final_puzzle(self):
+        while sum([counter["_"] for counter in self.row_counters]) > 0:
+            stat = self.gather_statistics()
+            print(stat)
+            # print("Before modify: ")
+            # for row in self.final_puzzle:
+            #     print(" ".join(row))
+            self.modify_puzzle(stat)
+            print("After modify: ")
+            self.print_puzzle()
+            self.partial_solver()
+            print()
+            print("After trying solving modified version:")
+            self.print_puzzle()
 
     def game_solver(self):
         can_solve = True
@@ -301,19 +304,23 @@ class BinoxVariationGenerator:
         """
         stats = {}
 
-        def is_valid_partial(board):
-            """
-            Validates the board against the Binox rules. Returns True if valid.
-            """
-            for i in range(self.size):
-                for j in range(self.size):
-                    if board[i][j] != "_":
-                        # Validate row
-                        if j > 1 and board[i][j] == board[i][j - 1] == board[i][j - 2]:
-                            return False
-                        # Validate column
-                        if i > 1 and board[i][j] == board[i - 1][j] == board[i - 2][j]:
-                            return False
+        def is_valid_partial(board, row, col):
+            # row check
+            if (row - 2 >= 0) and (board[row][col] == board[row - 1][col] == board[row - 2][col]):
+                return False
+            elif (row + 2 < self.size) and (board[row][col] == board[row + 1][col] == board[row + 2][col]):
+                return False
+            elif (row + 1 < self.size) and (row - 1 >= 0) and (board[row][col] == board[row - 1][col] == board[row + 1][col]):
+                return False
+
+            # col check
+            if (col - 2 >= 0) and (board[row][col] == board[row][col - 1] == board[row][col - 2]):
+                return False
+            elif (col + 2 < self.size) and (board[row][col] == board[row][col + 1] == board[row][col + 2]):
+                return False
+            elif (col + 1 < self.size) and (col - 1 >= 0) and (board[row][col] == board[row][col - 1] == board[row][col + 1]):
+                return False
+
             return True
 
         def backtrack(row, col):
@@ -329,7 +336,7 @@ class BinoxVariationGenerator:
             if self.puzzle[row][col] == "_":
                 for mark in ("O", "X"):
                     self.puzzle[row][col] = mark
-                    if is_valid_partial(self.puzzle):
+                    if is_valid_partial(self.puzzle, row, col):
                         if (row, col) not in stats:
                             stats[(row, col)] = {"O": 0, "X": 0}
                         stats[(row, col)][mark] += 1
@@ -342,7 +349,6 @@ class BinoxVariationGenerator:
         return stats
 
     def modify_puzzle(self, stat):
-        # self.print_puzz
         for cor, data in stat.items():
             if data["O"] - data["X"] == 0:
                 self.final_puzzle[cor[0]][cor[1]] = self.board[cor[0]][cor[1]]
@@ -356,115 +362,10 @@ class BinoxVariationGenerator:
                 self.row_counters[i][cell] += 1
                 self.col_counters[j][cell] += 1
         self.hints_used = {"row": set(), "col": set()}
-    # # Function to generate row hints from the original board
-    # def row_hints(self, num_hints=3):
-    #     """
-    #     Provide hints for a few rows, indicating the number of 'X' and 'O' in those rows.
-    #     """
-    #     size = len(self.board)
-    #     chosen_rows = random.sample(range(size), num_hints)
-    #     hints = {}
-    #     for row in chosen_rows:
-    #         x_count = self.board[row].count("X")
-    #         o_count = self.board[row].count("O")
-    #         hints[row] = (x_count, o_count)
-        
-    #     return hints
-
-
-# # Function to check if the board has a unique solution based on hints
-# # Function to check if the board has a unique solution based on hints
-# # Function to check if the board has a unique solution based on hints
-# def is_unique(board, size, hints):
-#     #print("1")
-#     """
-#     Check if a valid and unique solution exists based on the hints and partially removed board.
-#     This function tries to restore the board and checks if there's more than one valid solution.
-#     """
-
-#     # Helper function to check if the current board satisfies the row constraints
-#     def satisfies_constraints(board):
-#         for row in range(size):
-#             x_count = board[row].count("X")
-#             o_count = board[row].count("O")
-#             # Check row hints
-#             if row in hints and (x_count != hints[row][0] or o_count != hints[row][1]):
-#                 return False
-#         return True
-
-#     # Backtracking to restore the board with the available hints
-#     def backtrack(board, row, col):
-#         # If we've reached the end of the board
-#         if row == size:
-#             print("\nFound a valid solution:")
-#             for r in board:
-#                 print(" ".join(r))  # Print the current valid solution
-#             return [copy.deepcopy(board)]  # Found a valid solution
-
-#         # Move to the next row if we're at the end of a column
-#         if col == size:
-#             return backtrack(board, row + 1, 0)
-
-#         # Skip filled cells
-#         if board[row][col] != "_":
-#             return backtrack(board, row, col + 1)
-
-#         solutions = []
-
-#         # Try placing 'X' and 'O' at the current position
-#         for symbol in ["X", "O"]:
-#             board[row][col] = symbol
-#             if satisfies_constraints(board):  # Check constraints after placing symbol
-#                 solutions.extend(backtrack(board, row, col + 1))  # Explore next cells
-#                 print(f"Solution found: {solutions}")
-#             board[row][col] = "_"
-
-#         return solutions
-
-#     # Initialize board for backtracking
-#     board_copy = copy.deepcopy(board)
-#     solutions = backtrack(board_copy, 0, 0)
-#     print(f"Solution found: {solutions}")
-
-#     # If more than one solution is found, return False (i.e., multiple solutions found)
-#     if len(solutions) > 1:
-#         print("\nMultiple solutions found.")
-#         return False  # Multiple solutions found
-#     else:
-#         print("\nUnique solution found.")
-#         return True  # Only one solution found
-
-
-# # Main Function to generate a board and verify its uniqueness
-# def main():
-#     # Generate a Binox board
-#     original_board = binox_generator(size=6)
-#     print("Original Board:")
-#     for row in original_board:
-#         print(" ".join(row))
-
-#     # Remove pieces and display the new board
-#     modified_board = remove_pieces(original_board, fraction=2 / 3)
-#     print("\nBoard with Removed Pieces:")
-#     for row in modified_board:
-#         print(" ".join(row))
-
-#     # Provide hints for a few rows from the original (correct) board
-#     hints = row_hints(original_board, num_hints=3)
-#     print("\nRow Hints (from the correct board):")
-#     for row, (x_count, o_count) in hints.items():
-#         print(f"Row {row + 1}: {x_count} X, {o_count} O")
-
-#     # Check if the board with removed pieces and hints has a unique solution
-#     valid = is_unique(modified_board, 6, hints)
-#     if valid:
-#         print("\nA unique solution exists!")
-#     else:
-#         print("\nMultiple or no solutions exist!")
 
 
 if __name__ == "__main__":
-    ins = BinoxVariationGenerator(6)
+    ins = BinoxVariationGenerator(13)
     # for i in range(1000):
     #     instance = BinoxVariationGenerator(12)
     #     for i in range(instance.size):
